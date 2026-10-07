@@ -3,13 +3,13 @@
 Guidance for Claude Code in this repo. Compact by design: every line is an instruction or a pointer.
 
 ## Session start (always, in this order)
-1. Read `mode.md` → obey mode gate. 2. Read `progress.md`. 3. Read `decisions.md`. 4. Docs changed → `/graphify . --update`; query graph before raw files. 5. Missing tools → `setup.md` §Bootstrap.
+(SessionStart hook injects a summary; still:) 1. Read `mode.md` → obey mode gate. 2. Read `progress.md`. 3. Read `decisions.md`. 3a. Code work → read `app-map.md`. 4. Docs changed → `/graphify . --update`; query graph before raw files. 5. Missing tools → `setup.md` §Bootstrap.
 
 ## Mode gate
 `mode.md` = phase; only user edits. `planning` → no application code, no spikes; only `*.md`, settings, tool files. Exit: planning deliverables exist + user flips file.
 
 ## Working rules
-See `rules/process.md` (rules 1–21). Summary: terse chat + compact docs · graphify · council for decisions · progress.md every task · verify per testing.md · ask-don't-guess + decisions.md · secrets in one file · setup/testing/debugging append-only · user commits · agent crew · design gate · milestone gates · security gate · legal gate · permissions up front · disk discipline · purge · fresh context by default.
+See `rules/process.md` (rules 1–22). Summary: terse chat + compact docs · graphify · council for decisions · progress.md every task · verify per testing.md · ask-don't-guess + decisions.md · secrets in one file · setup/testing/debugging append-only · user commits · agent crew · design gate · milestone gates · security gate · legal gate · permissions up front · disk discipline · purge · fresh context by default · explain the app.
 
 ## Orchestration (read `rules/orchestration.md` before dispatching any agent)
 - Main thread = Opus: plans, writes briefs (`docs/gates/<task>/brief-<n>.md`), merges. Agents in `.claude/agents/` execute: investigator · deployer (haiku) · builder · tester · edge-tester · reviewer (sonnet) · debugger · security-reviewer (opus).
@@ -37,10 +37,10 @@ On `/compact` keep: current task + brief path, files being edited, unresolved er
 <one paragraph>
 
 ## Doc map (root)
-- `mode.md` · `progress.md` · `decisions.md` · `open-risks.md`
+- `mode.md` · `progress.md` · `decisions.md` · `open-risks.md` · `app-map.md` (how the app works)
 - `brief.md` · `product.md` · `data-model.md` · `sync-contract.md` · `milestones.md` · `launch-checklist.md`
 - `setup.md` · `testing.md` · `debugging.md` · `design-rules.md` · `design.md` · `legal.md` · `secrets.md`
-- `council/` transcripts · `docs/gates/` briefs + agent reports · `rules/` reusable process
+- `council/` transcripts · `docs/gates/` briefs + agent reports · `docs/wiki/` CodeWiki · `docs/visuals/` diagrams · `rules/` reusable process
 
 ## Commands (fill at M0; agents copy into briefs; also add to `.claude/settings.local.json` allow list)
 - test (single file): `<cmd> <file>` · test (full, gates only): `<cmd>`
@@ -51,6 +51,9 @@ On `/compact` keep: current task + brief path, files being edited, unresolved er
 
 ## Fresh context (process 21)
 Every summary ends with either `🧹 Next step doesn't need this context — /clear (or new session), then: <self-contained prompt>` or `Continue here (needs: <what>)`. Unrelated new request + context above soft warning → give the prompt + `/clear` instead of starting.
+
+## Explain the app (process 22)
+Milestone gate / onboarding / user unsure → offer once: CodeWiki (repo docs + diagrams; paid LLM run, no Dart) or visualize plugin (free HTML flowchart/roadmap → `docs/visuals/`). Run via subagent; results update `app-map.md`.
 
 ## Permissions, disk, purge (process 18–20)
 Task start: list all needed permissions (installs, network, deletes, docker, long builds) → ask ONCE → approved recurring ones into settings.local.json. Agents can't ask mid-run → pre-approve. Minimum test/build per change; full suite + release only at gates; no `clean` between iterations. Task end: purge own scratch/worktrees/screenshots. Gate end: `purge` + `du -sh` before/after; only regenerable gitignored output.

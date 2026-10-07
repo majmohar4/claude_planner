@@ -15,12 +15,14 @@ It was extracted from a real project (a Flutter planner with Apple Pencil notes 
 
 | File | Purpose |
 |---|---|
-| `process.md` | The 21 working rules: mode gate, session-start order, handoff file, decisions log, verification, secrets, parallel agent crew, design gate, milestone gates, security + legal gates, permissions up front, disk discipline, purge, fresh context by default. |
+| `process.md` | The 22 working rules: mode gate, session-start order, handoff file, decisions log, verification, secrets, parallel agent crew, design gate, milestone gates, security + legal gates, permissions up front, disk discipline, purge, fresh context by default, explain the app (CodeWiki / visualize). |
 | `orchestration.md` | Model + effort matrix (Opus 5.5 / Sonnet 5.5 / Haiku 4.5), brief template, agent reply contract, escalation, context hygiene (`/clear` at phase boundaries, delegate verbose reading). |
 | `templates/.claude/agents/` | 8 subagents with `model:` + `effort:`: investigator, deployer (haiku) · builder, tester, edge-tester, reviewer (sonnet) · debugger, security-reviewer (opus). |
 | `templates/.claude/settings.json` | Main model `opus`; per-model effort (Opus high for planning, set medium at build); context-warning hook. |
 | `templates/.claude/hooks/context-warn.py` | Reads real token usage from the transcript; warns you and Claude at ~100k / ~160k tokens to `/clear` or `/compact`. |
 | `templates/legal.md` | EU/GDPR legal checklist: privacy policy contents, ToS disclaimer + liability limits, cookies/consent, imprint, DPAs, rights flows, app-store privacy, accessibility, AI Act, `[lawyer]` flags. |
+| `templates/app-map.md` | How the app actually works (run, architecture, modules, key flows, gotchas); updated every milestone; read before touching code. |
+| `templates/.claude/hooks/session-start.sh` | Injects mode, progress, recent decisions, app-map head and git state into every new session. |
 | `council-playbook.md` | How to run the six "LLM council" rounds (advisors → anonymized peer review → chairman) that review the config, question the brief, check the answers, and produce the final fix list and design spec. |
 | `planning-sequence.md` | The ordered list of planning deliverables and the exit criterion for flipping to build mode. |
 | `templates/` | Drop-in skeletons: `CLAUDE.md`, `mode.md`, `progress.md`, `decisions.md`, `open-risks.md`, `setup.md`, `testing.md`, `debugging.md`, `milestones.md`, `design-rules.md`, `launch-checklist.md`. |
@@ -46,7 +48,7 @@ Then, in Claude Code:
 
 ## Recommended Claude Code skills/plugins
 
-Not required, but the playbook assumes them: `llm-council` (multi-advisor decisions), `graphify` (knowledge graph so sessions read fewer tokens), `caveman` (terse output), `superpowers` (brainstorm / debug / TDD process skills), and for UI work `taste-skill`, `impeccable`, `image-to-code-skill`, Playwright CLI, and style packs from [awesome-design-skills](https://github.com/bergside/awesome-design-skills).
+Not required, but the playbook assumes them: Context7, hookify, LSP plugins, ccusage, context-mode (trial), `visualize`, CodeWiki (CLI), Cloudflare `security-audit`, `llm-council` (multi-advisor decisions), `graphify` (knowledge graph so sessions read fewer tokens), `caveman` (terse output), `superpowers` (brainstorm / debug / TDD process skills), and for UI work `taste-skill`, `impeccable`, `image-to-code-skill`, Playwright CLI, and style packs from [awesome-design-skills](https://github.com/bergside/awesome-design-skills).
 
 ## The mode gate
 
@@ -65,6 +67,8 @@ Anything whose result is needed but whose reading is not (searches, logs, test o
 Security and legal are gates, not afterthoughts: a per-diff `security-reviewer` agent, Cloudflare's official [`security-audit`](https://github.com/cloudflare/security-audit-skill) skill before any public build, and `legal.md` (privacy, ToS disclaimer, cookies, GDPR, imprint, store forms) worked through from planning on (process rules 16/17).
 
 Permissions are asked once at task start (agents running in the background can't stop to ask), tests and builds are the minimum that proves a change (full suite and release builds only at milestone gates), and regenerable output is purged at task and milestone end (process rules 18–20). `settings.json` pre-allows read-only git/inspection commands and denies `git commit`/`push`/`reset --hard`/`clean` plus reading `secrets.md`/`.env`.
+
+Handoff: a SessionStart hook injects `progress.md` (whose first `Next` line is a paste-ready prompt), recent decisions, the `app-map.md` header and git state, so a new session starts with context. At milestone gates Claude offers a walkthrough of how the app works via [CodeWiki](https://github.com/FSoft-AI4Code/CodeWiki) (repo docs + diagrams, paid LLM run) or the [visualize](https://github.com/careerhackeralex/visualize) plugin (free HTML diagrams).
 
 Claude pushes back once on a bad or risky idea: a verdict, why, the cost if it's wrong, and a better option. If you decide otherwise, the override is logged in `decisions.md` and Claude does it fully, without asking again in this session or later ones (process rules 6a/6b).
 

@@ -27,6 +27,13 @@ Rules:
 - `ultrathink` in a prompt = deeper reasoning for one turn; use it for a single hard call instead of raising session effort.
 - Switching model or effort mid-session invalidates the prompt cache → switch only right after `/clear` (phase boundary).
 
+## 1a. Tools (setup.md §8)
+- **Context7**: before writing/briefing code against any external library/framework API → fetch current docs (main thread or put the doc facts into the brief's KNOWN). Never rely on memory for versioned APIs.
+- **LSP**: after edits, read diagnostics before running builds/tests (cheaper than a build). Prefer go-to-definition/references over grep for symbols.
+- **hookify**: turn any rule the model keeps breaking (lint after edit, no commit, no full-suite runs) into a hook; rules in prose drift, hooks don't.
+- **ccusage**: at milestone gate, log `npx ccusage daily --since <milestone start>` cost line in progress.md; compare across milestones.
+- **context-mode** (trial): route big tool outputs (logs, Playwright snapshots, long lists) through it; drop after trial if ccusage shows no saving.
+
 ## 2. Flow (build mode)
 0. Main plans. Unknown root cause → `debugger` first; never send a builder to "find and fix".
 1. Preflight (process 18): collect every permission all leaves need, ask user ONCE, add approved commands to `.claude/settings.local.json`. Briefs list exact allowed commands.
