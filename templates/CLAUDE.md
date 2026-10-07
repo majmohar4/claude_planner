@@ -2,6 +2,8 @@
 
 Guidance for Claude Code in this repo. Compact by design: every line is an instruction or a pointer.
 
+🔴 Plugins/settings/agents/hooks changed → tell user in red: `🔴 RESTART REQUIRED: /exit, new terminal, claude` before continuing. 🔴
+
 ## Session start (always, in this order)
 (SessionStart hook injects a summary; still:) 1. Read `mode.md` → obey mode gate. 2. Read `progress.md`. 3. Read `decisions.md`. 3a. Code work → read `app-map.md`. 4. Docs changed → `/graphify . --update`; query graph before raw files. 5. Missing tools → `setup.md` §Bootstrap.
 

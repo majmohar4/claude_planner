@@ -14,6 +14,15 @@
         "hooks": [
           {
             "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/setup.py\"",
+            "timeout": 900
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/context-warn.py\""
           }
         ]
@@ -24,7 +33,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh\""
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.py\"",
+            "timeout": 900
           }
         ]
       }
@@ -52,5 +62,20 @@
       "Read(./.env)",
       "Read(./.env.*)"
     ]
+  },
+  "extraKnownMarketplaces": {
+    "context-mode": {
+      "source": {
+        "source": "github",
+        "repo": "mksglu/context-mode"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "context7@claude-plugins-official": true,
+    "hookify@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "context-mode@context-mode": true
   }
 }

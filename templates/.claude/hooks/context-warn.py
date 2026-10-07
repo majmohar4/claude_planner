@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""UserPromptSubmit hook: warn user + Claude when main-session context grows.
+"""UserPromptSubmit hook: warn user + Claude when main-session context grows,
+and flag .claude/ config edited mid-session (restart required).
 
 Claude cannot see its own context meter; this reads real token usage from the
 transcript. Warns once per band (soft, hard) per session. Thresholds via env:
@@ -30,8 +31,30 @@ def context_tokens(path):
         pass
     return last
 
+def restart_needed(data):
+    """True if .claude/ settings/agents/hooks changed after this session started."""
+    root = os.environ.get("CLAUDE_PROJECT_DIR", ".")
+    try:
+        start = float(open(os.path.join(tempfile.gettempdir(), f"ctx-start-{data.get('session_id', 'x')}")).read())
+    except (OSError, ValueError):
+        return False
+    for d in (".claude", ".claude/agents", ".claude/hooks"):
+        try:
+            for f in os.listdir(os.path.join(root, d)):
+                fp = os.path.join(root, d, f)
+                if os.path.isfile(fp) and os.path.getmtime(fp) > start:
+                    return True
+        except OSError:
+            pass
+    return False
+
 def main():
     data = json.load(sys.stdin)
+    if restart_needed(data):
+        print(json.dumps({"systemMessage": "🔴🔴 RESTART REQUIRED 🔴🔴 .claude/ settings/agents/hooks changed this session — /exit, open a NEW terminal, run claude",
+                          "hookSpecificOutput": {"hookEventName": "UserPromptSubmit",
+                                                 "additionalContext": ".claude/ config changed mid-session and is NOT loaded. Tell the user in red to restart before relying on new agents/hooks/plugins."}}))
+        return
     tokens = context_tokens(data.get("transcript_path", ""))
     band = 2 if tokens >= HARD else 1 if tokens >= SOFT else 0
     state = os.path.join(tempfile.gettempdir(), f"ctx-warn-{data.get('session_id', 'x')}")

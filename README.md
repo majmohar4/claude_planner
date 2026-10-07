@@ -22,13 +22,21 @@ It was extracted from a real project (a Flutter planner with Apple Pencil notes 
 | `templates/.claude/hooks/context-warn.py` | Reads real token usage from the transcript; warns you and Claude at ~100k / ~160k tokens to `/clear` or `/compact`. |
 | `templates/legal.md` | EU/GDPR legal checklist: privacy policy contents, ToS disclaimer + liability limits, cookies/consent, imprint, DPAs, rights flows, app-store privacy, accessibility, AI Act, `[lawyer]` flags. |
 | `templates/app-map.md` | How the app actually works (run, architecture, modules, key flows, gotchas); updated every milestone; read before touching code. |
-| `templates/.claude/hooks/session-start.sh` | Injects mode, progress, recent decisions, app-map head and git state into every new session. |
+| `templates/.claude/hooks/session-start.py` | Injects mode, progress, recent decisions, app-map head and git state into every new session. |
 | `council-playbook.md` | How to run the six "LLM council" rounds (advisors → anonymized peer review → chairman) that review the config, question the brief, check the answers, and produce the final fix list and design spec. |
 | `planning-sequence.md` | The ordered list of planning deliverables and the exit criterion for flipping to build mode. |
 | `templates/` | Drop-in skeletons: `CLAUDE.md`, `mode.md`, `progress.md`, `decisions.md`, `open-risks.md`, `setup.md`, `testing.md`, `debugging.md`, `milestones.md`, `design-rules.md`, `launch-checklist.md`. |
 | `EXAMPLE.md` | Walkthrough of the original project: what each round produced and what it caught. |
 
 ## Quick start
+
+> [!CAUTION]
+> 🔴🔴 **RESTART CLAUDE CODE AFTER COPYING.** 🔴🔴
+> Copying files does **not** install plugins, and a running session does **not** load new `.claude/settings.json`, agents or hooks.
+> 1. Plugins are installed per machine. When you open Claude Code in a project with these files, anything missing is **installed automatically** (plugins, language servers, PATH entry). The first open can take a few minutes. A banner shows what was installed, or a red **SETUP INCOMPLETE** banner if something failed (type `install` to retry). To turn this off, create an empty `.claude/no-auto-install` file. Note: it installs tools for your whole user account.
+> 2. Then fully quit (`/exit`), open a **new terminal** (for PATH changes), and run `claude` in the project.
+> 3. Check: `/plugin` lists context7, hookify, the LSP plugins and context-mode; `/agents` lists the 8 agents; a new session shows the "Resume context" block.
+
 
 ```bash
 # in your new, empty repo

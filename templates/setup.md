@@ -1,6 +1,7 @@
 # setup.md — installs & config. Append-only, dated.
 
 ## Bootstrap new session / machine (in order)
+🔴 **After installing plugins or copying `.claude/` → `/exit`, open a NEW terminal, restart `claude`. Nothing loads mid-session.** 🔴
 1. Read CLAUDE.md → progress.md → decisions.md.
 2. Claude Code plugins/skills expected: caveman (then `/caveman full`; cavecrew agents optional), superpowers, graphify, llm-council, taste-skill, impeccable, image-to-code-skill (+ project-specific).
 3. Design tools at build start: `npx impeccable install`; `npx typeui.sh pull <slug>` (awesome-design-skills); Playwright CLI.
@@ -11,7 +12,7 @@
    - CodeWiki (MIT, Python 3.12+, git, Node): `pip install git+https://github.com/FSoft-AI4Code/CodeWiki.git` · `codewiki config set --provider <provider> --api-key <key>` · `codewiki generate` / `--update`. Also `codewiki mcp`.
    - visualize (MIT, Claude Code plugin): `claude plugin marketplace add careerhackeralex/visualize` · `claude plugin install visualize@careerhackeralex`. Trigger: "visualize …", "make a flowchart/dashboard/infographic of …".
    - Verify commands against the repos' READMEs before first install (researched secondhand 2026-10).
-8. Context + code tools (user scope, once per machine):
+8. Context + code tools (user scope, once per machine) — automatic: installed on session open by `.claude/hooks/session-start.py` (opt-out: empty `.claude/no-auto-install`; retry: type `install`). Manual equivalents:
    - Context7 (current library docs): `claude plugin install context7@claude-plugins-official`
    - hookify (plain-English → hooks): `claude plugin install hookify@claude-plugins-official`
    - LSP: `claude plugin install typescript-lsp@claude-plugins-official` · `pyright-lsp@…` · `swift-lsp@…` (+ binaries: `npm i -g typescript-language-server typescript pyright`; npm global bin on PATH; sourcekit-lsp ships with Xcode). Dart/Flutter → dart-flutter MCP.
