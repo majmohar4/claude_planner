@@ -16,6 +16,9 @@ It was extracted from a real project (a Flutter planner with Apple Pencil notes 
 | File | Purpose |
 |---|---|
 | `process.md` | The 15 working rules: mode gate, session-start order, handoff file, decisions log, verification, secrets, parallel agent crew, design gate, milestone gates. |
+| `orchestration.md` | Model + effort matrix (Opus 5.5 / Sonnet 5.5 / Haiku 4.5), brief template, agent reply contract, escalation, context hygiene (`/clear` at phase boundaries, delegate verbose reading). |
+| `templates/.claude/agents/` | 8 subagents with `model:` + `effort:`: investigator, deployer (haiku) · builder, tester, edge-tester, reviewer (sonnet) · debugger, security-reviewer (opus). |
+| `templates/.claude/settings.json` | Main model `opus`; per-model effort (Opus high for planning, set medium at build). |
 | `council-playbook.md` | How to run the six "LLM council" rounds (advisors → anonymized peer review → chairman) that review the config, question the brief, check the answers, and produce the final fix list and design spec. |
 | `planning-sequence.md` | The ordered list of planning deliverables and the exit criterion for flipping to build mode. |
 | `templates/` | Drop-in skeletons: `CLAUDE.md`, `mode.md`, `progress.md`, `decisions.md`, `open-risks.md`, `setup.md`, `testing.md`, `debugging.md`, `milestones.md`, `design-rules.md`, `launch-checklist.md`. |
@@ -26,7 +29,7 @@ It was extracted from a real project (a Flutter planner with Apple Pencil notes 
 ```bash
 # in your new, empty repo
 cp -r /path/to/claude_planner ./rules
-cp rules/templates/* .
+cp -R rules/templates/. .     # includes .claude/agents + settings.json
 # fill <PROJECT> in CLAUDE.md; leave mode.md = planning
 claude
 ```
@@ -37,7 +40,7 @@ Then, in Claude Code:
 2. Ask the council **what you need to answer before planning** (round 2). Answer the questions.
 3. Write your brief (features, platforms, references). Ask the council to **review the brief** (round 3) and answer its numbered decisions ("defaults" accepts the bracketed recommendations).
 4. Let Claude write `product.md`, `data-model.md`, `sync-contract.md`, `milestones.md`, then run the **final review** (round 5) and **design council** (round 6).
-5. Rebuild the knowledge graph, review, edit `mode.md` to `build`. Milestone M0 starts.
+5. Rebuild the knowledge graph, review, edit `mode.md` to `build`, then `/clear` and `/effort medium`. Milestone M0 starts; from here Claude writes briefs and dispatches the agent crew.
 
 ## Recommended Claude Code skills/plugins
 
@@ -50,6 +53,12 @@ Not required, but the playbook assumes them: `llm-council` (multi-advisor decisi
 ## The handoff file
 
 `progress.md` is rewritten at the end of every completed task, unconditionally. It has four sections: Done, In progress, Next, Open questions. Combined with `CLAUDE.md` (rules + doc map), `decisions.md` (why), and `setup.md` (what to install), a new session needs no chat history.
+
+## Models, effort, context
+
+Opus 5.5 runs the main thread in every phase: it plans, writes briefs, and merges results. Cheaper agents do the execution, and each agent file pins its own model and effort. The principle is that quality comes from the brief, not the model: a Sonnet builder with an exact brief beats an Opus builder with a vague one.
+
+Anything whose result is needed but whose reading is not (searches, logs, test output, research, council rounds) goes to a subagent. Only a ≤12-line stub returns to the main thread; the full report goes to `docs/gates/`. At every phase boundary (council round, milestone gate, mode flip) Claude updates `progress.md` and tells you to `/clear`. Model and effort changes happen only right after `/clear`, because a mid-session change invalidates the prompt cache. See `orchestration.md`.
 
 ## Councils in one paragraph
 

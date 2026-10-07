@@ -5,7 +5,8 @@
 2. Claude Code plugins/skills expected: caveman, superpowers, graphify, llm-council, taste-skill, impeccable, image-to-code-skill (+ project-specific).
 3. Design tools at build start: `npx impeccable install`; `npx typeui.sh pull <slug>` (awesome-design-skills); Playwright CLI.
 4. Toolchain (fill when chosen): 
-5. Secrets: `secrets.md` (private repo) or `.env` (gitignored).
+5. Agents + model/effort: `.claude/agents/*.md` + `.claude/settings.json` from rules/templates (orchestration.md). Non-Anthropic provider → pin `ANTHROPIC_DEFAULT_{OPUS,SONNET,HAIKU}_MODEL`.
+6. Secrets: `secrets.md` (private repo) or `.env` (gitignored).
 
 ## Log
 - <date> · 

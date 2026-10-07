@@ -8,6 +8,6 @@
 6. `milestones.md` — P, M0 toolchain, M1…Mn; each: Build list · Gate (automated + manual + edge list). Core first, features last, ≤2 weeks each; feature flags in one codebase.
 7. `design-rules.md` (bans) + `design.md` (spec via design council) + `launch-checklist.md`.
 8. Council rounds 3–6; fixes applied; `open-risks.md` left only with build-phase verifications.
-9. `/graphify . --update`; user flips `mode.md`.
+9. `/graphify . --update`; user flips `mode.md` → `/clear` → `/effort medium` (build phase, orchestration.md §1). Copy `.claude/agents/` + settings if not done; add real test/build commands to CLAUDE.md §Commands.
 
 Exit criterion: every question in the council verdicts answered in `decisions.md`; no "TBD/undecided" left in docs except open-risks build-phase items.

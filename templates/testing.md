@@ -17,3 +17,4 @@ Automated tests green + manual-device items for touched components checked by us
 
 ## Process checks (planning mode)
 - Session start order followed; progress.md updated; `git status` shows only `.md`/settings while mode = planning.
+- Agents: every build task has a brief + report in `docs/gates/<task>/`; no agent commits; reviewer 🔴/🟡 closed before gate.

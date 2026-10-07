@@ -10,4 +10,6 @@ Rounds, in order:
 5. **Final review** — all planning docs: contradictions, gaps, infeasibility; chairman emits a verbatim FIX LIST applied to docs the same day.
 6. **Design council** — 3–4 designers (editorial, product/system, motion/engineering, anti-generic critic) → chairman writes `design.md`; user reviews 10–15 taste calls.
 
+Models: advisors + peer reviewers = sonnet · high; technical verifier + chairman = opus · high (fable · xhigh only for an irreversible call where opus verdicts conflict). Pass `model` per Agent call. Each agent writes its answer to `council/<date>-<topic>/<role>.md` and replies ≤10 lines; chairman reads files, main thread reads only the VERDICT. Round done → `/clear` (process rule 4).
+
 Rules: advisors lean fully into their lens; reviewers anonymized; chairman may side with minority; user rulings override council and are logged; every technical correction becomes a `decisions.md` fact line.
