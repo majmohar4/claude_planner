@@ -16,6 +16,7 @@ Pick the lowest tier that passes "wrong is cheap?". Effort = how much the model 
 | debugger · security-reviewer | opus | high | unknown root cause; security review | routine edits |
 | Council advisors | sonnet | high | lens answers, peer review | — |
 | Council verifier + chairman | opus | high | fact-check claims, synthesis | — |
+| Whole-app security audit | Cloudflare `security-audit` skill (own session) | — | pre-release audit, sandboxed | per-diff review (use security-reviewer) |
 | Escalation ceiling | fable | xhigh | Opus at high failed twice on a hard problem | default use (cost) |
 
 Rules:
@@ -27,7 +28,8 @@ Rules:
 - Switching model or effort mid-session invalidates the prompt cache → switch only right after `/clear` (phase boundary).
 
 ## 2. Flow (build mode)
-1. Main plans. Unknown root cause → `debugger` first; never send a builder to "find and fix".
+0. Main plans. Unknown root cause → `debugger` first; never send a builder to "find and fix".
+1. Preflight (process 18): collect every permission all leaves need, ask user ONCE, add approved commands to `.claude/settings.local.json`. Briefs list exact allowed commands.
 2. Main writes one brief per leaf (§3) → `docs/gates/<task>/brief-<n>.md`. Leaves own **disjoint files**.
 3. Dispatch all independent leaves in ONE message; same-file leaves run sequentially (or worktrees).
 4. Each agent writes full report → `docs/gates/<task>/report-<n>.md`, replies with stub (§4).
@@ -43,28 +45,34 @@ KNOWN:  facts already established (root cause file:line, decisions.md lines, inv
         Never git stash/checkout/reset/restore/commit/push/stage.
 DO:     numbered steps
 GATES:  claim | CHECK (runnable cmd) | EXPECT (exact output)   — bug: first gate = RED test failing on old code
-TESTS:  exact test files to run (not whole suite)
+TESTS:  exact test files to run (not whole suite); build = affected target, debug, no clean
+PERMS:  pre-approved commands for this leaf (anything else → BLOCKED, don't attempt)
+PURGE:  temp files/screenshots/worktrees this leaf must delete before reporting
 REPORT: docs/gates/<task>/report-<n>.md + stub
 CHECKLIST: <paste project pre-review checklist so first pass passes review>
 ```
+User overrides (decisions.md lines tagged `override`) go into KNOWN as settled — agents implement them, never re-flag them.
 Briefs contradicting code/spec in a behaviour-changing way → agent stops with NEEDS_CONTEXT, never guesses.
 
 ## 4. Agent reply contract
 Full report to file; reply ≤12 lines:
 `Status: DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT` · files changed · one-line test result (re-measured, not remembered) · concerns · report path.
-No narration of files read. Subagents never dispatch subagents.
+No narration of files read; caveman-terse. Subagents never dispatch subagents.
+Pushback: an agent that thinks the brief's approach is bad (not just different) still stops only for broken invariants/data loss (→ NEEDS_CONTEXT); otherwise implements and adds one line under concerns: `approach risk: <why> · cost if wrong · alternative`. Main thread surfaces it to the user once.
 
 ## 5. Context hygiene (main thread + agents)
 **Delegate when the result is needed but the reading is not:** sweeps of >3 files, logs, test/build output, web/doc fetches, research, council rounds, conflict scans. Only the stub returns.
 **Stay inline when:** iterating with the user, editing files already in context, one-file lookups where path is known, quick edits.
 
 Main thread:
+- Silent tool calls: no narration between steps; chat text only for questions, warnings, final summary (process 1a).
 - Summaries, not dumps: `wc -l`, `grep -c`, `| tail -20`, `sed -n 'a,bp'`; never cat big files to "look".
 - Read reports, not diffs; spot-check only risky hunks.
 - **Phase boundary = `/clear`**: after a council round, a milestone gate, a mode flip, or switching to unrelated work. First make progress.md current, then end the reply with:
   `🧹 Phase done — progress.md current. /clear, then: <exact next prompt>` (add `/model …` or `/effort …` line if next phase needs it).
-- Claude cannot run `/clear`/`/compact` or see its own context meter. When the session is long mid-phase: make progress.md current, then suggest `/compact <focus>` (focus = current task + open files). Prefer `/clear` (free) over `/compact` (costs a large request).
+- Claude cannot run `/clear`/`/compact` or see its own context meter → `.claude/hooks/context-warn.py` reads real usage from the transcript and warns user + Claude at soft (~100k) / hard (~160k). On hard warning mid-phase: progress.md current, suggest `/compact <focus>` (focus = current task + open files). Prefer `/clear` (free) over `/compact` (costs a large request). Built-in auto-compact = last-resort only (fires late, summary loses detail).
 - One milestone per session.
+- Not only phase ends: every summary says `/clear` + paste-ready prompt when the next step doesn't reuse this context, else `Continue here (needs: …)` (process 21). Cache helps only when reused; stale context taxes every turn.
 
 Subagents:
 - One task per agent; its context dies with it. Continue the same agent (SendMessage) only for the same task (e.g. fix round on its own leaf); new task → new agent.

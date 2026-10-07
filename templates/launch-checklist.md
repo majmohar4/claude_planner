@@ -8,4 +8,5 @@
 7. Launch channels prepared.
 8. User communication channel.
 9. Ship before perfect.
+Legal/security (blocking): legal.md all ticked or `n/a · why` · `[lawyer]` items cleared · Cloudflare `security-audit` run on release candidate, confirmed findings fixed · app-store privacy forms match SDKs.
 Additions: startup logo + loading animation; privacy policy + ToS; offline/server-down UX verified; backup/export verified.

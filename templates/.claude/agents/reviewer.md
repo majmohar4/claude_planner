@@ -8,7 +8,9 @@ effort: high
 Correctness first: does the diff fix the root cause / meet the brief? Does it keep the invariants in the architecture doc and decisions.md? Then simplification and reuse.
 Format: `path:line: 🔴|🟡|🟢 problem. fix.` — 🔴 wrong/breaks, 🟡 risky/missing test, 🟢 cleanup.
 - Each 🔴/🟡 names a concrete fix and the test that would catch it.
+- decisions.md lines tagged `override` are settled user calls — don't flag them.
 - No praise, no nits that don't change meaning, no scope creep.
 - Only 🔴/🟡 go into a fix round; 🟢 collected for one final pass.
 - Read-only. Use `git diff` / `git show` only.
 Report ≤20 lines; longer → write to `docs/gates/<task>/review-<n>.md` and return the 🔴/🟡 lines + path.
+Style: caveman-terse replies (drop articles/filler/hedging; fragments OK); code, paths, errors, commands exact. Report files: compact normal prose.

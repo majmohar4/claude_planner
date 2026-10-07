@@ -15,10 +15,12 @@ It was extracted from a real project (a Flutter planner with Apple Pencil notes 
 
 | File | Purpose |
 |---|---|
-| `process.md` | The 15 working rules: mode gate, session-start order, handoff file, decisions log, verification, secrets, parallel agent crew, design gate, milestone gates. |
+| `process.md` | The 21 working rules: mode gate, session-start order, handoff file, decisions log, verification, secrets, parallel agent crew, design gate, milestone gates, security + legal gates, permissions up front, disk discipline, purge, fresh context by default. |
 | `orchestration.md` | Model + effort matrix (Opus 5.5 / Sonnet 5.5 / Haiku 4.5), brief template, agent reply contract, escalation, context hygiene (`/clear` at phase boundaries, delegate verbose reading). |
 | `templates/.claude/agents/` | 8 subagents with `model:` + `effort:`: investigator, deployer (haiku) · builder, tester, edge-tester, reviewer (sonnet) · debugger, security-reviewer (opus). |
-| `templates/.claude/settings.json` | Main model `opus`; per-model effort (Opus high for planning, set medium at build). |
+| `templates/.claude/settings.json` | Main model `opus`; per-model effort (Opus high for planning, set medium at build); context-warning hook. |
+| `templates/.claude/hooks/context-warn.py` | Reads real token usage from the transcript; warns you and Claude at ~100k / ~160k tokens to `/clear` or `/compact`. |
+| `templates/legal.md` | EU/GDPR legal checklist: privacy policy contents, ToS disclaimer + liability limits, cookies/consent, imprint, DPAs, rights flows, app-store privacy, accessibility, AI Act, `[lawyer]` flags. |
 | `council-playbook.md` | How to run the six "LLM council" rounds (advisors → anonymized peer review → chairman) that review the config, question the brief, check the answers, and produce the final fix list and design spec. |
 | `planning-sequence.md` | The ordered list of planning deliverables and the exit criterion for flipping to build mode. |
 | `templates/` | Drop-in skeletons: `CLAUDE.md`, `mode.md`, `progress.md`, `decisions.md`, `open-risks.md`, `setup.md`, `testing.md`, `debugging.md`, `milestones.md`, `design-rules.md`, `launch-checklist.md`. |
@@ -58,7 +60,13 @@ Not required, but the playbook assumes them: `llm-council` (multi-advisor decisi
 
 Opus 5.5 runs the main thread in every phase: it plans, writes briefs, and merges results. Cheaper agents do the execution, and each agent file pins its own model and effort. The principle is that quality comes from the brief, not the model: a Sonnet builder with an exact brief beats an Opus builder with a vague one.
 
-Anything whose result is needed but whose reading is not (searches, logs, test output, research, council rounds) goes to a subagent. Only a ≤12-line stub returns to the main thread; the full report goes to `docs/gates/`. At every phase boundary (council round, milestone gate, mode flip) Claude updates `progress.md` and tells you to `/clear`. Model and effort changes happen only right after `/clear`, because a mid-session change invalidates the prompt cache. See `orchestration.md`.
+Anything whose result is needed but whose reading is not (searches, logs, test output, research, council rounds) goes to a subagent. Only a ≤12-line stub returns to the main thread; the full report goes to `docs/gates/`. At every phase boundary, and after any task whose follow-up doesn't need the current context, Claude updates `progress.md` and tells you to `/clear` with a paste-ready prompt for the next step. Unrelated requests in an already-long session get that prompt instead of being started on top of stale context. Model and effort changes happen only right after `/clear`, because a mid-session change invalidates the prompt cache. See `orchestration.md`.
+
+Security and legal are gates, not afterthoughts: a per-diff `security-reviewer` agent, Cloudflare's official [`security-audit`](https://github.com/cloudflare/security-audit-skill) skill before any public build, and `legal.md` (privacy, ToS disclaimer, cookies, GDPR, imprint, store forms) worked through from planning on (process rules 16/17).
+
+Permissions are asked once at task start (agents running in the background can't stop to ask), tests and builds are the minimum that proves a change (full suite and release builds only at milestone gates), and regenerable output is purged at task and milestone end (process rules 18–20). `settings.json` pre-allows read-only git/inspection commands and denies `git commit`/`push`/`reset --hard`/`clean` plus reading `secrets.md`/`.env`.
+
+Claude pushes back once on a bad or risky idea: a verdict, why, the cost if it's wrong, and a better option. If you decide otherwise, the override is logged in `decisions.md` and Claude does it fully, without asking again in this session or later ones (process rules 6a/6b).
 
 ## Councils in one paragraph
 
